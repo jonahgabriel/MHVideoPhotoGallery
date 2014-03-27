@@ -196,8 +196,11 @@
     UIImageView *imageView = [(MHGalleryOverViewCell*)[collectionView cellForItemAtIndexPath:indexPath] thumbnail];
     
     NSArray *galleryData = self.galleryDataSource[collectionView.tag];
-        
-    MHGalleryController *gallery = [[MHGalleryController alloc]initWithPresentationStyle:MHGalleryPresentionStyleImageViewer];
+    
+    MHGalleryImageViewerViewController *imageViewer = [self.storyboard instantiateViewControllerWithIdentifier:@"MHGalleryImageViewerViewController"];
+    imageViewer.createdFromNIB = YES;
+    MHGalleryController *gallery = [[MHGalleryController alloc] initWithGalleryImageViewerViewController:imageViewer];
+    
     gallery.galleryItems = galleryData;
     gallery.presentingFromImageView = imageView;
     gallery.presentationIndex = indexPath.row;

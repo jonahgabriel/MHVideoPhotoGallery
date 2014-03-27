@@ -115,7 +115,7 @@ UIImage *MHGalleryImage(NSString *imageName){
 }
 
 - (instancetype)initWithURL:(NSString*)URLString
-      galleryType:(MHGalleryType)galleryType{
+                galleryType:(MHGalleryType)galleryType{
     self = [super init];
     if (!self)
         return nil;
@@ -599,7 +599,8 @@ UIImage *MHGalleryImage(NSString *imageName){
     self.transitionCustomization = [MHTransitionCustomization new];
     self.UICustomization = [MHUICustomization new];
     
-    self.overViewViewController= [MHOverViewController new];    
+    self.overViewViewController= [MHOverViewController new];
+    
     self.imageViewerViewController = [MHGalleryImageViewerViewController new];
     
     if (presentationStyle == MHGalleryPresentionStyleImageViewer) {
@@ -610,6 +611,26 @@ UIImage *MHGalleryImage(NSString *imageName){
     return self;
 }
 
+- (id)initWithGalleryImageViewerViewController:(MHGalleryImageViewerViewController *)imageViewerViewController;
+{
+    self = [super init];
+    if (!self)
+    {
+        return nil;
+    }
+    self.preferredStatusBarStyleMH = UIStatusBarStyleDefault;
+    self.presentationStyle = MHGalleryPresentionStyleImageViewer;
+    self.transitionCustomization = [MHTransitionCustomization new];
+    self.UICustomization = [MHUICustomization new];
+    
+    self.overViewViewController= [MHOverViewController new];
+    
+    self.imageViewerViewController = imageViewerViewController;
+    
+    self.viewControllers = @[self.overViewViewController,self.imageViewerViewController];
+    return self;
+    
+}
 
 -(void)setGalleryItems:(NSArray *)galleryItems{
     self.overViewViewController.galleryItems = galleryItems;
@@ -646,7 +667,7 @@ UIImage *MHGalleryImage(NSString *imageName){
 -(void)presentMHGalleryController:(MHGalleryController *)galleryController
                          animated:(BOOL)animated
                        completion:(void (^)(void))completion{
-   
+    
     
     if(galleryController.UICustomization.useCustomBackButtonImageOnImageViewer){
         UIBarButtonItem *backBarButton = [[UIBarButtonItem alloc]initWithImage:[MHGalleryImage(@"ic_square") imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
@@ -713,7 +734,7 @@ UIImage *MHGalleryImage(NSString *imageName){
     if ([[(UINavigationController*)dismissed  viewControllers].lastObject isKindOfClass:[MHGalleryImageViewerViewController class]]) {
         MHGalleryImageViewerViewController *imageViewer = [(UINavigationController*)dismissed  viewControllers].lastObject;
         MHImageViewController *viewer = imageViewer.pageViewController.viewControllers.firstObject;
-       
+        
         if (viewer.interactiveTransition) {
             MHTransitionDismissMHGallery *detail = viewer.interactiveTransition;
             detail.transitionImageView = imageViewer.dismissFromImageView;

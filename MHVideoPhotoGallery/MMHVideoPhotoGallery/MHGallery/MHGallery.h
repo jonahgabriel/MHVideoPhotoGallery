@@ -244,6 +244,7 @@ typedef NS_ENUM(NSUInteger, MHYoutubeThumbQuality) {
 @property (nonatomic,assign) UIStatusBarStyle                   preferredStatusBarStyleMH;
 
 - (id)initWithPresentationStyle:(MHGalleryPresentionStyle)presentationStyle;
+- (id)initWithGalleryImageViewerViewController:(MHGalleryImageViewerViewController *)imageViewerViewController;
 
 @property (nonatomic, copy) void (^finishedCallback)(NSUInteger currentIndex,UIImage *image,MHTransitionDismissMHGallery *interactiveTransition);
 

@@ -17,10 +17,6 @@
 
 @interface MHGalleryImageViewerViewController()
 @property (nonatomic, strong) UIActivityViewController *activityViewController;
-@property (nonatomic, strong) UIBarButtonItem          *shareBarButton;
-@property (nonatomic, strong) UIBarButtonItem          *leftBarButton;
-@property (nonatomic, strong) UIBarButtonItem          *rightBarButton;
-@property (nonatomic, strong) UIBarButtonItem          *playStopBarButton;
 @end
 
 @implementation MHGalleryImageViewerViewController
@@ -34,7 +30,7 @@
     [super viewWillAppear:animated];
     
     [self setNeedsStatusBarAppearanceUpdate];
-
+    
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
@@ -76,7 +72,7 @@
 
 -(void)viewDidLoad{
     [super viewDidLoad];
-        
+    
     if (!self.galleryViewController.UICustomization.showOverView) {
         self.navigationItem.hidesBackButton = YES;
     }
@@ -89,7 +85,7 @@
     self.navigationItem.rightBarButtonItem = doneBarButton;
     
     self.view.backgroundColor = [self.galleryViewController.UICustomization MHGalleryBackgroundColorForViewMode:MHGalleryViewModeImageViewerNavigationBarShown];
-        
+    
     
     self.pageViewController =[[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll
                                                              navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal
@@ -112,38 +108,70 @@
     [self.pageViewController didMoveToParentViewController:self];
     [self.view addSubview:[self.pageViewController view]];
     
-    self.toolbar = [[UIToolbar alloc]initWithFrame:CGRectMake(0, self.view.frame.size.height-44, self.view.frame.size.width, 44)];
-    if([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft || [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight){
-        if (self.view.bounds.size.height > self.view.bounds.size.width) {
-            self.toolbar.frame = CGRectMake(0, self.view.frame.size.width-44, self.view.frame.size.height, 44);
+    if( !self.createdFromNIB )
+    {
+        self.toolbar = [[UIToolbar alloc]initWithFrame:CGRectMake(0, self.view.frame.size.height-44, self.view.frame.size.width, 44)];
+        if([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft || [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight){
+            if (self.view.bounds.size.height > self.view.bounds.size.width) {
+                self.toolbar.frame = CGRectMake(0, self.view.frame.size.width-44, self.view.frame.size.height, 44);
+            }
         }
-    }
-    
-    self.toolbar.tintColor = self.galleryViewController.UICustomization.barButtonsTintColor;
-    self.toolbar.tag = 307;
-    self.toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleBottomMargin;
-    
-    self.playStopBarButton = [[UIBarButtonItem alloc]initWithImage:MHGalleryImage(@"play")
+        
+        self.toolbar.tintColor = self.galleryViewController.UICustomization.barButtonsTintColor;
+        self.toolbar.tag = 307;
+        self.toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleBottomMargin;
+        
+        self.playStopBarButton = [[UIBarButtonItem alloc]initWithImage:MHGalleryImage(@"play")
+                                                                 style:UIBarButtonItemStyleBordered
+                                                                target:self
+                                                                action:@selector(playStopButtonPressed)];
+        
+        
+        self.leftBarButton = [[UIBarButtonItem alloc]initWithImage:MHGalleryImage(@"left_arrow")
                                                              style:UIBarButtonItemStyleBordered
                                                             target:self
-                                                            action:@selector(playStopButtonPressed)];
-    
-    
-    self.leftBarButton = [[UIBarButtonItem alloc]initWithImage:MHGalleryImage(@"left_arrow")
-                                                         style:UIBarButtonItemStyleBordered
-                                                        target:self
-                                                        action:@selector(leftPressed:)];
-    
-    self.rightBarButton = [[UIBarButtonItem alloc]initWithImage:MHGalleryImage(@"right_arrow")
-                                                          style:UIBarButtonItemStyleBordered
-                                                         target:self
-                                                         action:@selector(rightPressed:)];
-
-    self.shareBarButton = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-                                                                       target:self
-                                                                       action:@selector(sharePressed)];
-
-    [self updateToolBarForItem:item];
+                                                            action:@selector(leftPressed:)];
+        
+        self.rightBarButton = [[UIBarButtonItem alloc]initWithImage:MHGalleryImage(@"right_arrow")
+                                                              style:UIBarButtonItemStyleBordered
+                                                             target:self
+                                                             action:@selector(rightPressed:)];
+        
+        self.shareBarButton = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemAction
+                                                                           target:self
+                                                                           action:@selector(sharePressed)];
+        
+        [self updateToolBarForItem:item];
+        
+        
+        
+        
+        self.descriptionViewBackground = [[UIToolbar alloc]initWithFrame:CGRectZero];
+        self.descriptionView = [[UITextView alloc]initWithFrame:CGRectZero];
+        self.descriptionView.backgroundColor = [UIColor clearColor];
+        self.descriptionView.font = [UIFont systemFontOfSize:15];
+        self.descriptionView.text = item.description;
+        self.descriptionView.textColor = [UIColor blackColor];
+        self.descriptionView.scrollEnabled = NO;
+        self.descriptionView.userInteractionEnabled = NO;
+        
+        
+        self.toolbar.barTintColor = self.galleryViewController.UICustomization.barTintColor;
+        self.toolbar.barStyle = self.galleryViewController.UICustomization.barStyle;
+        self.descriptionViewBackground.barTintColor = self.galleryViewController.UICustomization.barTintColor;
+        self.descriptionViewBackground.barStyle = self.galleryViewController.UICustomization.barStyle;
+        
+        CGSize size = [self.descriptionView sizeThatFits:CGSizeMake(self.view.frame.size.width-20, MAXFLOAT)];
+        
+        self.descriptionView.frame = CGRectMake(10, self.view.frame.size.height -size.height-44, self.view.frame.size.width-20, size.height);
+        if (self.descriptionView.text.length >0) {
+            self.descriptionViewBackground.frame = CGRectMake(0, self.view.frame.size.height -size.height-44, self.view.frame.size.width, size.height);
+        }else{
+            self.descriptionViewBackground.hidden =YES;
+        }
+    }
+    [(UIScrollView*)self.pageViewController.view.subviews[0] setDelegate:self];
+    [(UIGestureRecognizer*)[[self.pageViewController.view.subviews[0] gestureRecognizers] firstObject] setDelegate:self];
     
     if (self.pageIndex == 0) {
         self.leftBarButton.enabled =NO;
@@ -152,35 +180,9 @@
         self.rightBarButton.enabled =NO;
     }
     
-    self.descriptionViewBackground = [[UIToolbar alloc]initWithFrame:CGRectZero];
-    self.descriptionView = [[UITextView alloc]initWithFrame:CGRectZero];
-    self.descriptionView.backgroundColor = [UIColor clearColor];
-    self.descriptionView.font = [UIFont systemFontOfSize:15];
-    self.descriptionView.text = item.description;
-    self.descriptionView.textColor = [UIColor blackColor];
-    self.descriptionView.scrollEnabled = NO;
-    self.descriptionView.userInteractionEnabled = NO;
-    
-    
-    self.toolbar.barTintColor = self.galleryViewController.UICustomization.barTintColor;
-    self.toolbar.barStyle = self.galleryViewController.UICustomization.barStyle;
-    self.descriptionViewBackground.barTintColor = self.galleryViewController.UICustomization.barTintColor;
-    self.descriptionViewBackground.barStyle = self.galleryViewController.UICustomization.barStyle;
-    
-    CGSize size = [self.descriptionView sizeThatFits:CGSizeMake(self.view.frame.size.width-20, MAXFLOAT)];
-    
-    self.descriptionView.frame = CGRectMake(10, self.view.frame.size.height -size.height-44, self.view.frame.size.width-20, size.height);
-    if (self.descriptionView.text.length >0) {
-        self.descriptionViewBackground.frame = CGRectMake(0, self.view.frame.size.height -size.height-44, self.view.frame.size.width, size.height);
-    }else{
-        self.descriptionViewBackground.hidden =YES;
-    }
-    
-    [(UIScrollView*)self.pageViewController.view.subviews[0] setDelegate:self];
-    [(UIGestureRecognizer*)[[self.pageViewController.view.subviews[0] gestureRecognizers] firstObject] setDelegate:self];
-    
     [self updateTitleForIndex:self.pageIndex];
-
+    [self.view bringSubviewToFront:self.toolbar];
+    
 }
 -(NSInteger)numberOfGalleryItems{
     return [self.galleryViewController.dataSource numberOfItemsInGallery:self.galleryViewController];
@@ -291,7 +293,7 @@
     
     self.pageIndex = [pageViewController.viewControllers.firstObject pageIndex];
     [self showCurrentIndex:self.pageIndex];
-
+    
     if (finished) {
         for (MHImageViewController *imageViewController in previousViewControllers) {
             [self removeVideoPlayerForVC:imageViewController];
@@ -319,16 +321,20 @@
     }
 }
 
--(void)updateToolBarForItem:(MHGalleryItem*)item{
+-(void)updateToolBarForItem:(MHGalleryItem*)item
+{
     
-    UIBarButtonItem *flex = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-                                                                         target:self
-                                                                         action:nil];
-    if (item.galleryType == MHGalleryTypeVideo) {
-        [self changeToPlayButton];
-        self.toolbar.items = @[self.shareBarButton,flex,self.leftBarButton,flex,self.playStopBarButton,flex,self.rightBarButton,flex];
-    }else{
-        self.toolbar.items =@[self.shareBarButton,flex,self.leftBarButton,flex,self.rightBarButton,flex];
+    if( !self.createdFromNIB )
+    {
+        UIBarButtonItem *flex = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                                             target:self
+                                                                             action:nil];
+        if (item.galleryType == MHGalleryTypeVideo) {
+            [self changeToPlayButton];
+            self.toolbar.items = @[self.shareBarButton,flex,self.leftBarButton,flex,self.playStopBarButton,flex,self.rightBarButton,flex];
+        }else{
+            self.toolbar.items =@[self.shareBarButton,flex,self.leftBarButton,flex,self.rightBarButton,flex];
+        }
     }
 }
 
@@ -365,7 +371,7 @@
     return nil;
 }
 
--(void)leftPressed:(id)sender{
+-(IBAction)leftPressed:(id)sender{
     self.rightBarButton.enabled = YES;
     
     MHImageViewController *theCurrentViewController = self.pageViewController.viewControllers.firstObject;
@@ -377,7 +383,7 @@
         self.leftBarButton.enabled = NO;
     }
     __block MHGalleryImageViewerViewController*blockSelf = self;
-
+    
     [self.pageViewController setViewControllers:@[imageViewController] direction:UIPageViewControllerNavigationDirectionReverse animated:YES completion:^(BOOL finished) {
         blockSelf.pageIndex = imageViewController.pageIndex;
         [blockSelf updateToolBarForItem:[blockSelf itemForIndex:blockSelf.pageIndex]];
@@ -385,7 +391,7 @@
     }];
 }
 
--(void)rightPressed:(id)sender{
+-(IBAction)rightPressed:(id)sender{
     self.leftBarButton.enabled =YES;
     
     MHImageViewController *theCurrentViewController = self.pageViewController.viewControllers.firstObject;
@@ -407,7 +413,7 @@
 -(void)showCurrentIndex:(NSInteger)currentIndex{
     if ([self.galleryViewController.galleryDelegate respondsToSelector:@selector(galleryController:didShowIndex:)]) {
         [self.galleryViewController.galleryDelegate galleryController:self.galleryViewController
-                                                        didShowIndex:currentIndex];
+                                                         didShowIndex:currentIndex];
     }
     
 }
@@ -415,7 +421,7 @@
 - (UIViewController *)pageViewController:(UIPageViewController *)pvc viewControllerBeforeViewController:(MHImageViewController *)vc{
     
     NSInteger indexPage = vc.pageIndex;
-
+    
     if (self.numberOfGalleryItems !=1 && self.numberOfGalleryItems-1 != indexPage) {
         self.leftBarButton.enabled =YES;
         self.rightBarButton.enabled =YES;
@@ -440,7 +446,7 @@
     
     
     NSInteger indexPage = vc.pageIndex;
-
+    
     if (self.numberOfGalleryItems !=1 && indexPage !=0) {
         self.leftBarButton.enabled = YES;
         self.rightBarButton.enabled = YES;
@@ -496,7 +502,7 @@
 
 
 +(MHImageViewController *)imageViewControllerForMHMediaItem:(MHGalleryItem*)item
-                                           viewController:(MHGalleryImageViewerViewController*)viewController{
+                                             viewController:(MHGalleryImageViewerViewController*)viewController{
     if (item) {
         return [[self alloc]initWithMHMediaItem:item
                                  viewController:viewController];
@@ -723,7 +729,7 @@
             self.moviePlayerToolBarTop.autoresizingMask =UIViewAutoresizingFlexibleWidth;
             self.moviePlayerToolBarTop.alpha =0;
             self.moviePlayerToolBarTop.barTintColor = self.viewController.galleryViewController.UICustomization.barTintColor;
-
+            
             [self.view addSubview:self.moviePlayerToolBarTop];
             
             self.currentTimeMovie =0;

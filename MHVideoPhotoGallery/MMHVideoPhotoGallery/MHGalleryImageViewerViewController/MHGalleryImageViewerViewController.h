@@ -17,11 +17,17 @@
 
 @interface MHGalleryImageViewerViewController : UIViewController<UIPageViewControllerDelegate,UIPageViewControllerDataSource,UINavigationControllerDelegate,UIScrollViewDelegate,UIGestureRecognizerDelegate,UINavigationBarDelegate>
 
+@property (nonatomic, strong)          IBOutlet UIToolbar *toolbar;
+@property (nonatomic, strong)          IBOutlet UIBarButtonItem *shareBarButton;
+@property (nonatomic, strong)          IBOutlet UIBarButtonItem *leftBarButton;
+@property (nonatomic, strong)          IBOutlet UIBarButtonItem *rightBarButton;
+@property (nonatomic, strong)          IBOutlet UIBarButtonItem *playStopBarButton;
+
 @property (nonatomic, strong)          NSArray *galleryItems;
-@property (nonatomic, strong)          UIToolbar *toolbar;
 @property (nonatomic, strong)          UITextView *descriptionView;
 @property (nonatomic, strong)          UIToolbar *descriptionViewBackground;
 @property (nonatomic)                  NSInteger pageIndex;
+@property (nonatomic)                  BOOL createdFromNIB;
 @property (nonatomic, strong)          UIPageViewController *pageViewController;
 @property (nonatomic, strong)          UIImageView *presentingFromImageView;
 @property (nonatomic, strong)          UIImageView *dismissFromImageView;
@@ -30,6 +36,9 @@
 @property (nonatomic,getter = isUserScrolling)                   BOOL userScrolls;
 @property (nonatomic,getter = isHiddingToolBarAndNavigationBar)  BOOL hiddingToolBarAndNavigationBar;
 
+-(IBAction)leftPressed:(id)sender;
+-(IBAction)rightPressed:(id)sender;
+    
 -(MHGalleryController*)galleryViewController;
 -(void)updateToolBarForItem:(MHGalleryItem*)item;
 -(void)playStopButtonPressed;
